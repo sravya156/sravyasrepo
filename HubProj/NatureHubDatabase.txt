@@ -1,0 +1,182 @@
+create database hubDb2
+use hubDb2
+ 
+ 
+CREATE TABLE Users (
+    UserID INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(100) NOT NULL,
+    Email NVARCHAR(255) UNIQUE NOT NULL,
+    PasswordHash NVARCHAR(255) NOT NULL,
+    Role NVARCHAR(50) DEFAULT 'User',
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
+ 
+CREATE TABLE Remedies (
+    RemedyID INT IDENTITY(1,1) PRIMARY KEY,
+    Title NVARCHAR(255) NOT NULL,
+    Description TEXT,
+    Category NVARCHAR(100),
+    PreparationMethod TEXT,
+    UsageInstructions TEXT
+);
+ 
+CREATE TABLE HealthTips (
+    TipID INT IDENTITY(1,1) PRIMARY KEY,
+    Category NVARCHAR(100),
+    Content TEXT
+);
+ 
+CREATE TABLE Products (
+    ProductID INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(255) NOT NULL,
+    Description TEXT,
+    Price DECIMAL(10,2) NOT NULL,
+    StockQuantity INT NOT NULL,
+    Category NVARCHAR(100)
+);
+ 
+CREATE TABLE Orders (
+    OrderID INT IDENTITY(1,1) PRIMARY KEY,
+    UserID INT FOREIGN KEY REFERENCES Users(UserID) ON DELETE CASCADE,
+    TotalAmount DECIMAL(10,2) NOT NULL,
+    OrderStatus NVARCHAR(50) DEFAULT 'Pending',
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
+ 
+CREATE TABLE OrderItems (
+    OrderItemID INT IDENTITY(1,1) PRIMARY KEY,
+    OrderID INT FOREIGN KEY REFERENCES Orders(OrderID) ON DELETE CASCADE,
+    ProductID INT FOREIGN KEY REFERENCES Products(ProductID) ON DELETE CASCADE,
+    Quantity INT NOT NULL,
+    Price DECIMAL(10,2) NOT NULL
+);
+ 
+CREATE TABLE Cart (
+    CartID INT IDENTITY(1,1) PRIMARY KEY,
+    UserID INT FOREIGN KEY REFERENCES Users(UserID) ON DELETE CASCADE,
+    ProductID INT FOREIGN KEY REFERENCES Products(ProductID) ON DELETE CASCADE,
+    Quantity INT NOT NULL
+);
+ 
+CREATE TABLE Transactions (
+    TransactionID INT IDENTITY(1,1) PRIMARY KEY,
+    UserID INT FOREIGN KEY REFERENCES Users(UserID) ON DELETE CASCADE,
+    OrderID INT FOREIGN KEY REFERENCES Orders(OrderID) ON DELETE SET NULL,
+    PaymentMethod NVARCHAR(50),
+    TransactionDate DATETIME DEFAULT GETDATE(),
+    Status NVARCHAR(50) DEFAULT 'Pending'
+);
+ 
+ 
+CREATE TABLE Reviews (
+    ReviewID INT IDENTITY(1,1) PRIMARY KEY,
+    UserID INT FOREIGN KEY REFERENCES Users(UserID) ON DELETE CASCADE,
+    ProductID INT FOREIGN KEY REFERENCES Products(ProductID) ON DELETE CASCADE,
+    Rating INT CHECK (Rating BETWEEN 1 AND 5),
+    Comment TEXT,
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
+ 
+SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Transactions';
+ 
+ 
+ALTER TABLE Transactions 
+DROP CONSTRAINT FK__Transacti__Order__59063A47;
+ 
+ 
+-- Insert into Users
+INSERT INTO Users (Name, Email, PasswordHash, Role) 
+VALUES 
+('John Doe', 'john@example.com', 'hashed_password_1', 'User'),
+('Jane Smith', 'jane@example.com', 'hashed_password_2', 'User');
+ 
+-- Insert into Remedies
+INSERT INTO Remedies (Title, Description, Category, PreparationMethod, UsageInstructions) 
+VALUES 
+('Ginger Tea', 'A warm remedy for cold and flu.', 'Herbal', 'Boil ginger in water', 'Drink twice a day'),
+('Turmeric Milk', 'Helps with immunity and inflammation.', 'Herbal', 'Mix turmeric in warm milk', 'Drink before bed');
+ 
+-- Insert into HealthTips
+INSERT INTO HealthTips (Category, Content) 
+VALUES 
+('Diet', 'Eat more vegetables and fruits.'),
+('Exercise', 'Walk at least 30 minutes daily.');
+ 
+ 
+INSERT INTO HealthTips (Category, Content) 
+VALUES 
+('Hydration', 'Drink at least 8 glasses of water a day.'),
+('Sleep', 'Aim for 7-9 hours of sleep each night.'),
+('Mental Health', 'Practice mindfulness or meditation regularly.'),
+('Diet', 'Limit sugar intake and avoid processed foods.'),
+('Exercise', 'Incorporate strength training into your routine twice a week.'),
+('Hydration', 'Start your day with a glass of water to hydrate after sleep.'),
+('Mental Health', 'Connect with loved ones to reduce stress.'),
+('Diet', 'Include lean proteins in your diet for muscle health.'),
+('Exercise', 'Stretch before and after exercise to improve flexibility.'),
+('Sleep', 'Maintain a consistent sleep schedule, even on weekends.'),
+('Hydration', 'Avoid sugary drinks and opt for water or herbal teas.'),
+('Mental Health', 'Take breaks during work to reduce mental fatigue.'),
+('Diet', 'Eat a variety of colorful foods for a range of nutrients.');
+ 
+ 
+INSERT INTO Remedies (Title, Description, Category, PreparationMethod, UsageInstructions) 
+VALUES 
+('Honey Lemon Water', 'Boosts immune system and aids digestion.', 'Natural', 'Mix honey and lemon juice in warm water', 'Drink in the morning on an empty stomach'),
+('Peppermint Tea', 'Relieves headaches and digestive discomfort.', 'Herbal', 'Steep peppermint leaves in hot water', 'Drink once a day after meals'),
+('Garlic Honey', 'Supports immune health and fights infections.', 'Natural', 'Crush garlic and mix with honey', 'Take a spoonful daily'),
+('Cinnamon Tea', 'Helps regulate blood sugar levels.', 'Herbal', 'Steep cinnamon sticks in hot water', 'Drink once a day'),
+('Apple Cider Vinegar Drink', 'Balances pH levels and aids digestion.', 'Natural', 'Mix 1-2 tbsp of apple cider vinegar in water', 'Drink once daily before meals'),
+('Chamomile Tea', 'Promotes relaxation and better sleep.', 'Herbal', 'Steep chamomile flowers in hot water', 'Drink before bedtime'),
+('Aloe Vera Juice', 'Soothes digestive issues and improves skin health.', 'Natural', 'Extract aloe vera gel and mix with water', 'Drink 1/4 cup daily'),
+('Lemon Ginger Honey Drink', 'Helps with nausea and boosts metabolism.', 'Natural', 'Boil ginger, mix with lemon and honey in warm water', 'Drink twice a day');
+ 
+ 
+-- Insert into Products
+INSERT INTO Products (Name, Description, Price, StockQuantity, Category) 
+VALUES 
+('Organic Honey', 'Pure and raw honey.', 15.99, 50, 'Health'),
+('Herbal Tea', 'A mix of organic herbs.', 9.99, 100, 'Tea');
+ 
+INSERT INTO Products (Name, Description, Price, StockQuantity, Category) 
+VALUES 
+('Organic Honey', 'Pure and raw honey.', 15.99, 50, 'Health'),
+('Lavender Essential Oil', '100% pure lavender oil for relaxation.', 19.99, 75, 'Essential Oils'),
+('Green Superfood Powder', 'A nutrient-rich blend of greens for detox and vitality.', 29.99, 120, 'Health');
+ 
+INSERT INTO Products (Name, Description, Price, StockQuantity, Category) 
+VALUES 
+('Coconut Oil', 'Cold-pressed coconut oil for cooking and skincare.', 12.49, 200, 'Oil'),
+('Aloe Vera Gel', 'Natural aloe vera gel for soothing skin care.', 7.99, 150, 'Gel'),
+('Turmeric Capsules', 'Anti-inflammatory turmeric capsules for joint health.', 18.49, 80, 'Capsule'),
+('Tea Tree Oil', 'Pure tea tree oil for acne treatment and skin care.', 15.99, 60, 'HerbalOils')
+-- Insert into Orders
+INSERT INTO Orders (UserID, TotalAmount, OrderStatus) 
+VALUES 
+(1, 25.98, 'Pending'),
+(2, 9.99, 'Shipped');
+ 
+-- Insert into OrderItems
+INSERT INTO OrderItems (OrderID, ProductID, Quantity, Price) 
+VALUES 
+(1, 1, 1, 15.99),
+(1, 2, 1, 9.99),
+(2, 2, 1, 9.99);
+ 
+-- Insert into Cart
+INSERT INTO Cart (UserID, ProductID, Quantity) 
+VALUES 
+(1, 1, 2),
+(2, 2, 1);
+ 
+-- Insert into Transactions
+ 
+ 
+-- Insert into Reviews
+INSERT INTO Reviews (UserID, ProductID, Rating, Comment) 
+VALUES 
+(1, 5, 5, 'Great honey, very pure!'),
+(2, 2, 4, 'Tasty tea, but a bit expensive.');
+ 
+ 
+select * from Users

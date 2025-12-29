@@ -1,0 +1,6 @@
+@NatureHub2_HostAddress = http://localhost:5259
+
+GET {{NatureHub2_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
